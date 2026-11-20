@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>El Gran Versus | Distritec 10 Años</title>
+  <style>
+    :root {
+      --bg-dark: #050806;
+      --neon-green: #5ce619;
+      --neon-gold: #ffd000;
+      --neon-glow: rgba(92, 230, 25, 0.55);
+      --card-bg: #0e1611;
+      --text-main: #ffffff;
+      --text-muted: #9eb3a4;
+      --danger: #ff3b3b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #0d2614 0%, var(--bg-dark) 75%);
+      color: var(--text-main);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      padding: 10px 16px 4px;
+      width: 100%;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(92, 230, 25, 0.15);
+      border: 1px solid var(--neon-green);
+      color: var(--neon-green);
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 1.4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    h1 span {
+      color: var(--neon-green);
+      text-shadow: 0 0 12px var(--neon-glow);
+    }
+
+    .screen {
+      width: 100%;
+      max-width: 460px;
+      padding: 8px 16px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .fighter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .fighter-card {
+      background: var(--card-bg);
+      border: 2px solid #1e3325;
+      border-radius: 14px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .fighter-card.selected {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 16px var(--neon-glow);
+      background: #132218;
+      transform: translateY(-2px);
+    }
+
+    .fighter-img {
+      width: 82px;
+      height: 82px;
+      object-fit: contain;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.75));
+      transition: transform 0.2s ease;
+    }
+
+    .fighter-card.selected .fighter-img {
+      transform: scale(1.08);
+    }
+
+    .fighter-name {
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .fighter-tag {
+      font-size: 0.72rem;
+      color: var(--neon-green);
+    }
+
+    .input-group {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 11px 13px;
+      border-radius: 10px;
+      border: 1px solid #284230;
+      background: #0b120e;
+      color: #fff;
+      font-size: 0.92rem;
+      outline: none;
+    }
+
+    .input-group input:focus, .input-group select:focus {
+      border-color: var(--neon-green);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 12px;
+      background: var(--neon-green);
+      color: #040805;
+      font-size: 1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 0 18px var(--neon-glow);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97);
+    }
+
+    /* HUD */
+    .hud {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr 1fr;
+      background: var(--card-bg);
+      border: 1px solid #1f3626;
+      border-radius: 12px;
+      padding: 7px 8px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .hud-label {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .hud-val {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--neon-green);
+    }
+
+    .round-pill {
+      font-size: 0.78rem;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(92, 230, 25, 0.15);
+      color: var(--neon-green);
+      display: inline-block;
+      margin-top: 2px;
+    }
+
+    .round-pill.furia {
+      background: rgba(255, 208, 0, 0.2);
+      color: var(--neon-gold);
+      animation: pulse 0.6s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.07); }
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 420px;
+      height: 360px;
+      background: #070d09;
+      border: 2px solid #1e3826;
+      border-radius: 14px;
+      display: block;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 420px;
+      margin-top: 10px;
+    }
+
+    .hit-btn {
+      background: #101c14;
+      border: 2px solid var(--neon-green);
+      border-radius: 14px;
+      padding: 15px 6px;
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      touch-action: manipulation;
+    }
+
+    .hit-btn span {
+      font-size: 0.65rem;
+      color: var(--neon-green);
+    }
+
+    .hit-btn.pressed {
+      background: var(--neon-green);
+      color: #050806;
+      transform: scale(0.95);
+    }
+
+    .hit-btn.pressed span {
+      color: #050806;
+    }
+
+    /* Tabs de Ranking */
+    .leaderboard {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid #1e3325;
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-top: 12px;
+    }
+
+    .team-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #1b2e21;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid #243d2c;
+      background: #09100b;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: rgba(92, 230, 25, 0.18);
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+    }
+
+    .rank-container {
+      max-height: 165px;
+      overflow-y: auto;
+    }
+
+    .rank-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 4px;
+      border-bottom: 1px solid #152219;
+      font-size: 0.82rem;
+    }
+
+    .rank-row:last-child {
+      border-bottom: none;
+    }
+
+    .rank-pos {
+      font-weight: 900;
+      color: var(--neon-green);
+      width: 26px;
+    }
+
+    .rank-info {
+      flex: 1;
+      text-align: left;
+    }
+
+    .rank-sede {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .rank-score {
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .end-avatar {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 14px var(--neon-glow));
+      margin-bottom: 4px;
+    }
+
+    footer {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      padding: 6px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge">Distritec 10 Años • Tu Aliado en Tecnología</div>
+    <h1>El Gran <span>Versus</span></h1>
+  </header>
+
+  <!-- PANTALLA 1: INICIO -->
+  <section id="start-screen" class="screen active">
+    <div class="fighter-grid">
+      <div class="fighter-card selected" onclick="selectFighter('natilla', this)">
+        <img src="assets/natilla.png" alt="Team Natilla" class="fighter-img" />
+        <div class="fighter-name">Team Natilla</div>
+        <div class="fighter-tag">Poder Canela</div>
+      </div>
+      <div class="fighter-card" onclick="selectFighter('bunuelo', this)">
+        <img src="assets/bunuelo.png" alt="Team Buñuelo" class="fighter-img" />
+        <div class="fighter-name">Team Buñuelo</div>
+        <div class="fighter-tag">Golpe Crujiente</div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <input type="text" id="player-name" placeholder="Tu nombre y apellido (Ej: Camilo Pérez)" maxlength="26" />
+    </div>
+    <div class="input-group">
+      <select id="player-sede">
+        <option value="Líderes">Área: Líderes</option>
+        <option value="Administrativos">Área: Administrativos</option>
+        <option value="Redes Principal">Área: Redes Principal</option>
+        <option value="Redes Pereira 1">Área: Redes Pereira 1</option>
+        <option value="Desarrollo">Área: Desarrollo</option>
+        <option value="Talento Humano">Área: Talento Humano</option>
+      </select>
+    </div>
+
+    <button class="btn-primary" onclick="startGame()">¡Entrar al Ring (40s)!</button>
+
+    <div class="leaderboard">
+      <div class="team-bar">
+        <span id="team-natilla-pts">🍮 Natilla: 0</span>
+        <span id="team-bunuelo-pts">Buñuelo: 0 🥯</span>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('asesores', this)">🏆 Top Asesores</button>
+        <button class="tab-btn" onclick="switchTab('sedes', this)">🏢 Ranking Sedes</button>
+      </div>
+      <div id="ranking-list-start" class="rank-container"></div>
+    </div>
+  </section>
+
+  <!-- PANTALLA 2: ARENA DE COMBATE -->
+  <section id="game-screen" class="screen">
+    <div class="hud">
+      <div>
+        <div class="hud-label">Puntos</div>
+        <div class="hud-val" id="hud-score">0</div>
+      </div>
+      <div>
+        <div class="hud-label">Fase</div>
+        <div class="round-pill" id="hud-round">ROUND 1</div>
+      </div>
+      <div>
+        <div class="hud-label">Combo</div>
+        <div class="hud-val" id="hud-combo">x1</div>
+      </div>
+      <div>
+        <div class="hud-label">Tiempo</div>
+        <div class="hud-val" id="hud-time">40s</div>
+      </div>
+    </div>
+
+    <canvas id="gameCanvas" width="400" height="360"></canvas>
+
+    <div class="controls">
+      <button class="hit-btn" id="btn-0" onpointerdown="triggerLane(0)">⚡<span>IZQ (A)</span></button>
+      <button class="hit-btn" id="btn-1" onpointerdown="triggerLane(1)">🔥<span>CENTRO (S)</span></button>
+      <button class="hit-btn" id="btn-2" onpointerdown="triggerLane(2)">📱<span>DER (D)</span></button>
+    </div>
+  </section>
+
+  <!-- PANTALLA 3: RESULTADOS -->
+  <section id="end-screen" class="screen">
+    <div style="text-align: center; margin: 6px 0;">
+      <img id="end-avatar-img" src="assets/natilla.png" alt="Campeón" class="end-avatar" />
+      <h2 id="end-title" style="font-size: 1.25rem;">¡Combate Terminado!</h2>
+      <div id="final-score" style="font-size: 2.5rem; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 15px var(--neon-glow);">0</div>
+      <p id="final-stats" style="font-size: 0.78rem; color: var(--text-muted);"></p>
+      <p id="sync-status" style="font-size: 0.72rem; color: var(--neon-gold); margin-top: 3px;"></p>
+    </div>
+
+    <button class="btn-primary" onclick="resetToMenu()">Jugar de Nuevo / Superar Récord</button>
+
+    <div class="leaderboard">
+      <div class="team-bar">
+        <span id="team-natilla-pts-end">🍮 Natilla: 0</span>
+        <span id="team-bunuelo-pts-end">Buñuelo: 0 🥯</span>
+      </div>
+      <div id="ranking-list-end" class="rank-container"></div>
+    </div>
+  </section>
+
+  <footer>
+    <strong>DISTRITEC 10 AÑOS</strong> • Solo cuenta tu mejor récord personal
+  </footer>
+
+  <script>
+    // ========================================================
+    // PEGA AQUÍ LA URL DE TU GOOGLE APPS SCRIPT (/exec)
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbxhndxicZInzU-H8fpp04fCA3kqmlbSLB3Aaliu-BOXznrTvkCl8C7GD5yxENCSVgpX/exec";
+    // ========================================================
+
+    // Precarga de personajes oficiales
+    const imgNatilla = new Image();
+    imgNatilla.src = 'assets/natilla.png';
+    const imgBunuelo = new Image();
+    imgBunuelo.src = 'assets/bunuelo.png';
+
+    let selectedFighter = 'natilla';
+    let playerName = '';
+    let playerSede = '';
+    let currentTab = 'asesores';
+    let cachedRankingData = null;
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let gameRunning = false;
+    let score = 0;
+    let combo = 1;
+    let maxCombo = 1;
+    let hits = 0;
+    let timeLeft = 40;
+    let currentRound = 1;
+    let timerInterval = null;
+    let spawnTimer = 0;
+    let shakeTime = 0;
+    let enemyHurtTime = 0;
+    let playerAttackTime = 0;
+    let playerHurtTime = 0;
+    let roundBannerTimer = 0;
+    let roundBannerText = '';
+
+    const lanes = [70, 200, 330];
+    const laneIcons = ['⚡', '🔥', '📱'];
+    const hitZoneY = 305;
+    let notes = [];
+    let particles = [];
+    let floatingTexts = [];
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTone(freq, type = 'sine', duration = 0.1) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.11, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function selectFighter(fighter, el) {
+      selectedFighter = fighter;
+      document.querySelectorAll('.fighter-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      playTone(520, 'triangle', 0.08);
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function triggerRoundBanner(text) {
+      roundBannerText = text;
+      roundBannerTimer = 65;
+      playTone(780, 'square', 0.18);
+    }
+
+    function startGame() {
+      const nameInput = document.getElementById('player-name').value.trim();
+      if (!nameInput) {
+        alert('Escribe tu nombre y apellido para registrar tu récord.');
+        return;
+      }
+      playerName = nameInput;
+      playerSede = document.getElementById('player-sede').value;
+
+      score = 0;
+      combo = 1;
+      maxCombo = 1;
+      hits = 0;
+      timeLeft = 40;
+      currentRound = 1;
+      notes = [];
+      particles = [];
+      floatingTexts = [];
+      gameRunning = true;
+
+      updateRoundUI(1);
+      updateHUD();
+      showScreen('game-screen');
+      triggerRoundBanner('ROUND 1: ¡CALENTAMIENTO!');
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('hud-time').textContent = timeLeft + 's';
+
+        if (timeLeft === 26 && currentRound === 1) {
+          currentRound = 2;
+          updateRoundUI(2);
+          triggerRoundBanner('ROUND 2: ¡CONTRAATAQUE x1.5!');
+        } else if (timeLeft === 13 && currentRound === 2) {
+          currentRound = 3;
+          updateRoundUI(3);
+          triggerRoundBanner('ROUND 3: ¡MODO FURIA x2!');
+        }
+
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function updateRoundUI(round) {
+      const pill = document.getElementById('hud-round');
+      if (round === 1) {
+        pill.textContent = 'ROUND 1';
+        pill.className = 'round-pill';
+      } else if (round === 2) {
+        pill.textContent = 'ROUND 2 (x1.5)';
+        pill.className = 'round-pill';
+      } else {
+        pill.textContent = '🔥 FURIA (x2)';
+        pill.className = 'round-pill furia';
+      }
+    }
+
+    function updateHUD() {
+      document.getElementById('hud-score').textContent = score.toLocaleString();
+      document.getElementById('hud-combo').textContent = 'x' + combo;
+    }
+
+    function spawnWave() {
+      if (currentRound === 1) {
+        const lane = Math.floor(Math.random() * 3);
+        notes.push({ lane, y: 102, speed: 3.9, icon: laneIcons[lane], isGold: false, hit: false });
+      } else if (currentRound === 2) {
+        const lane = Math.floor(Math.random() * 3);
+        const isGold = Math.random() < 0.25;
+        notes.push({
+          lane,
+          y: 102,
+          speed: 5.1,
+          icon: isGold ? '👑' : laneIcons[lane],
+          isGold,
+          hit: false
+        });
+      } else {
+        const lane1 = Math.floor(Math.random() * 3);
+        notes.push({ lane: lane1, y: 102, speed: 5.7, icon: '👑', isGold: true, hit: false });
+
+        if (Math.random() < 0.45) {
+          const lane2 = (lane1 + 1 + Math.floor(Math.random() * 2)) % 3;
+          notes.push({ lane: lane2, y: 102, speed: 5.7, icon: laneIcons[lane2], isGold: false, hit: false });
+        }
+      }
+    }
+
+    function triggerLane(lane) {
+      if (!gameRunning) return;
+
+      const btn = document.getElementById('btn-' + lane);
+      btn.classList.add('pressed');
+      setTimeout(() => btn.classList.remove('pressed'), 95);
+
+      let targetIndex = -1;
+      let minDist = 999;
+
+      notes.forEach((n, idx) => {
+        if (n.lane === lane && !n.hit) {
+          const dist = Math.abs(n.y - hitZoneY);
+          if (dist < minDist) {
+            minDist = dist;
+            targetIndex = idx;
+          }
+        }
+      });
+
+      if (targetIndex !== -1 && minDist <= 46) {
+        const note = notes[targetIndex];
+        note.hit = true;
+        const isPerfect = minDist <= 20;
+
+        const roundMult = currentRound === 1 ? 1 : (currentRound === 2 ? 1.5 : 2);
+        const goldBonus = note.isGold ? 50 : 0;
+        const basePts = (isPerfect ? 140 : 100) + goldBonus;
+        const points = Math.round(basePts * roundMult * combo);
+
+        score += points;
+        hits++;
+        combo = Math.min(combo + 1, 8);
+        if (combo > maxCombo) maxCombo = combo;
+
+        playerAttackTime = 10;
+        enemyHurtTime = 12;
+        shakeTime = isPerfect ? 8 : 4;
+
+        const burstColor = note.isGold ? '#ffd000' : '#5ce619';
+        spawnParticles(lanes[lane], hitZoneY, burstColor, 14);
+        spawnParticles(275, 52, burstColor, 10);
+        addFloatingText(isPerfect ? `¡CRÍTICO! +${points}` : `+${points}`, lanes[lane], hitZoneY - 24, burstColor);
+        playTone(isPerfect ? 880 : 620, 'triangle', 0.08);
+      } else {
+        combo = 1;
+        playerHurtTime = 10;
+        score = Math.max(0, score - 30);
+        addFloatingText('¡FALLO! -30', lanes[lane], hitZoneY - 20, '#ff3b3b');
+        playTone(155, 'sawtooth', 0.11);
+      }
+
+      updateHUD();
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (!gameRunning) return;
+      if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') triggerLane(0);
+      if (e.key === 's' || e.key === 'S' || e.key === 'ArrowDown') triggerLane(1);
+      if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') triggerLane(2);
+    });
+
+    function spawnParticles(x, y, color, count) {
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x, y,
+          vx: (Math.random() - 0.5) * 7.5,
+          vy: (Math.random() - 0.5) * 7.5,
+          life: 20,
+          color
+        });
+      }
+    }
+
+    function addFloatingText(text, x, y, color) {
+      floatingTexts.push({ text, x, y, color, life: 26 });
+    }
+
+    // Dibuja un personaje en el ring con soporte de volteo horizontal (flipX)
+    function drawFighterSprite(img, centerX, centerY, size, flipX, isHurt) {
+      if (!img.complete) return;
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      if (flipX) ctx.scale(-1, 1);
+      if (isHurt && Math.floor(Date.now() / 50) % 2 === 0) {
+        ctx.filter = 'brightness(1.8) sepia(1) hue-rotate(-50deg) saturate(5)';
+      }
+      ctx.drawImage(img, -size / 2, -size / 2, size, size);
+      ctx.restore();
+    }
+
+    function gameLoop() {
+      if (!gameRunning) return;
+
+      ctx.save();
+      if (shakeTime > 0) {
+        ctx.translate((Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6);
+        shakeTime--;
+      }
+
+      ctx.fillStyle = '#070d09';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Luz de arena
+      const glowColor = currentRound === 3 ? 'rgba(255, 208, 0, 0.28)' : 'rgba(92, 230, 25, 0.30)';
+      const grad = ctx.createRadialGradient(200, 50, 10, 200, 50, 205);
+      grad.addColorStop(0, glowColor);
+      grad.addColorStop(1, 'rgba(7, 13, 9, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, 130);
+
+      // Posiciones y animaciones de combate
+      const pOffsetX = playerAttackTime > 0 ? 24 : 0;
+      const eOffsetX = enemyHurtTime > 0 ? 12 : 0;
+      if (playerAttackTime > 0) playerAttackTime--;
+      if (enemyHurtTime > 0) enemyHurtTime--;
+      if (playerHurtTime > 0) playerHurtTime--;
+
+      const playerImg = selectedFighter === 'natilla' ? imgNatilla : imgBunuelo;
+      const enemyImg = selectedFighter === 'natilla' ? imgBunuelo : imgNatilla;
+
+      // Natilla mira naturalmente a la derecha (flipX = false a la izq, true a la der)
+      // Buñuelo mira naturalmente a la izquierda (flipX = true a la izq, false a la der)
+      const playerFlip = selectedFighter === 'bunuelo';
+      const enemyFlip = selectedFighter === 'bunuelo';
+
+      drawFighterSprite(playerImg, 118 + pOffsetX, 50, 76, playerFlip, playerHurtTime > 0);
+      drawFighterSprite(enemyImg, 282 + eOffsetX, 50, 76, enemyFlip, enemyHurtTime > 0);
+
+      // VS central
+      ctx.textAlign = 'center';
+      ctx.font = '900 18px Arial';
+      ctx.fillStyle = currentRound === 3 ? '#ffd000' : '#5ce619';
+      ctx.fillText('VS', 200, 56);
+
+      // Línea del ring
+      ctx.strokeStyle = '#1f3a28';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(15, 96);
+      ctx.lineTo(385, 96);
+      ctx.stroke();
+
+      // Carriles y objetivos
+      lanes.forEach((x) => {
+        ctx.strokeStyle = 'rgba(92, 230, 25, 0.12)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, 98);
+        ctx.lineTo(x, hitZoneY);
+        ctx.stroke();
+
+        ctx.strokeStyle = currentRound === 3 ? '#ffd000' : '#5ce619';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(x, hitZoneY, 24, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      spawnTimer++;
+      const spawnInterval = currentRound === 1 ? 38 : (currentRound === 2 ? 31 : 28);
+      if (spawnTimer >= spawnInterval) {
+        spawnWave();
+        spawnTimer = 0;
+      }
+
+      notes.forEach((n) => {
+        if (n.hit) return;
+        n.y += n.speed;
+
+        ctx.fillStyle = n.isGold ? '#2b2407' : '#132619';
+        ctx.beginPath();
+        ctx.arc(lanes[n.lane], n.y, 21, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = n.isGold ? '#ffd000' : '#5ce619';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.font = '21px Arial';
+        ctx.fillText(n.icon, lanes[n.lane], n.y + 7);
+
+        if (n.y > hitZoneY + 42) {
+          n.hit = true;
+          combo = 1;
+          updateHUD();
+        }
+      });
+
+      notes = notes.filter(n => !n.hit);
+
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, 4, 4);
+      });
+      particles = particles.filter(p => p.life > 0);
+
+      floatingTexts.forEach((ft) => {
+        ft.y -= 1.2;
+        ft.life--;
+        ctx.font = 'bold 13px Arial';
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x, ft.y);
+      });
+      floatingTexts = floatingTexts.filter(ft => ft.life > 0);
+
+      if (roundBannerTimer > 0) {
+        roundBannerTimer--;
+        ctx.fillStyle = 'rgba(5, 8, 6, 0.88)';
+        ctx.fillRect(20, 160, 360, 44);
+        ctx.strokeStyle = currentRound === 3 ? '#ffd000' : '#5ce619';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(20, 160, 360, 44);
+        ctx.font = 'bold 16px Arial';
+        ctx.fillStyle = currentRound === 3 ? '#ffd000' : '#5ce619';
+        ctx.fillText(roundBannerText, 200, 188);
+      }
+
+      ctx.restore();
+      requestAnimationFrame(gameLoop);
+    }
+
+    async function endGame() {
+      gameRunning = false;
+      clearInterval(timerInterval);
+      playTone(440, 'triangle', 0.3);
+
+      document.getElementById('end-avatar-img').src =
+        selectedFighter === 'natilla' ? 'assets/natilla.png' : 'assets/bunuelo.png';
+      document.getElementById('final-score').textContent = score.toLocaleString() + ' pts';
+      document.getElementById('final-stats').textContent =
+        `${playerName} (${playerSede}) • ${hits} golpes • Combo máx x${maxCombo}`;
+      document.getElementById('sync-status').textContent = GOOGLE_SHEETS_URL
+        ? 'Sincronizando récord con el ranking en vivo...'
+        : 'Modo demo local (pega tu URL de Google Sheets para ranking global)';
+
+      showScreen('end-screen');
+
+      await saveScore({
+        name: playerName,
+        sede: playerSede,
+        team: selectedFighter === 'natilla' ? 'Natilla' : 'Buñuelo',
+        score: score
+      });
+    }
+
+    function resetToMenu() {
+      loadRankings();
+      showScreen('start-screen');
+    }
+
+    function switchTab(tab, el) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      if (cachedRankingData) renderRankingLists(cachedRankingData);
+    }
+
+    function getFallbackData() {
+      const local = JSON.parse(localStorage.getItem('distritec_versus_v2')) || [
+        { name: 'Laura Gómez', sede: 'Pereira Centro', team: 'Natilla', score: 6450, tries: 2 },
+        { name: 'Andrés Morales', sede: 'Dosquebradas', team: 'Buñuelo', score: 5900, tries: 3 },
+        { name: 'Valentina Ríos', sede: 'Redes / Call Center', team: 'Natilla', score: 5200, tries: 1 }
+      ];
+      let natilla = 0, bunuelo = 0;
+      const sedesMap = {};
+      local.forEach(i => {
+        if (i.team === 'Natilla') natilla += i.score;
+        else bunuelo += i.score;
+        sedesMap[i.sede] = (sedesMap[i.sede] || 0) + i.score;
+      });
+      const sedes = Object.keys(sedesMap).map(sede => ({ sede, score: sedesMap[sede] })).sort((a, b) => b.score - a.score);
+      return { top10: local.slice(0, 10), teams: { natilla, bunuelo }, sedes };
+    }
+
+    async function saveScore(entry) {
+      let local = JSON.parse(localStorage.getItem('distritec_versus_v2')) || [];
+      const existing = local.find(i => i.name.toLowerCase() === entry.name.toLowerCase() && i.sede === entry.sede);
+      if (existing) {
+        existing.tries = (existing.tries || 1) + 1;
+        if (entry.score > existing.score) {
+          existing.score = entry.score;
+          existing.team = entry.team;
+        }
+      } else {
+        local.push({ ...entry, tries: 1 });
+      }
+      local.sort((a, b) => b.score - a.score);
+      localStorage.setItem('distritec_versus_v2', JSON.stringify(local));
+
+      if (GOOGLE_SHEETS_URL) {
+        try {
+          const res = await fetch(GOOGLE_SHEETS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(entry)
+          });
+          const data = await res.json();
+          cachedRankingData = data;
+          renderRankingLists(data);
+          document.getElementById('sync-status').textContent = '✅ Récord actualizado en vivo';
+          return;
+        } catch (err) {
+          document.getElementById('sync-status').textContent = '⚠️ Guardado localmente (sin conexión al servidor)';
+        }
+      }
+
+      const fallback = getFallbackData();
+      cachedRankingData = fallback;
+      renderRankingLists(fallback);
+    }
+
+    async function loadRankings() {
+      if (GOOGLE_SHEETS_URL) {
+        try {
+          const res = await fetch(GOOGLE_SHEETS_URL);
+          const data = await res.json();
+          cachedRankingData = data;
+          renderRankingLists(data);
+          return;
+        } catch (err) {
+          console.warn('Usando datos locales');
+        }
+      }
+      const fallback = getFallbackData();
+      cachedRankingData = fallback;
+      renderRankingLists(fallback);
+    }
+
+    function renderRankingLists(data) {
+      const natillaTxt = `🍮 Natilla: ${data.teams.natilla.toLocaleString()}`;
+      const bunueloTxt = `Buñuelo: ${data.teams.bunuelo.toLocaleString()} 🥯`;
+      document.getElementById('team-natilla-pts').textContent = natillaTxt;
+      document.getElementById('team-bunuelo-pts').textContent = bunueloTxt;
+      document.getElementById('team-natilla-pts-end').textContent = natillaTxt;
+      document.getElementById('team-bunuelo-pts-end').textContent = bunueloTxt;
+
+      const asesoresHtml = data.top10.map((item, idx) => `
+        <div class="rank-row">
+          <div class="rank-pos">#${idx + 1}</div>
+          <div class="rank-info">
+            <strong>${item.team === 'Natilla' ? '🍮' : '🥯'} ${item.name}</strong>
+            <span class="rank-sede">${item.sede} • ${item.tries || 1} intento(s)</span>
+          </div>
+          <div class="rank-score">${item.score.toLocaleString()} pts</div>
+        </div>
+      `).join('');
+
+      const sedesHtml = data.sedes.map((item, idx) => `
+        <div class="rank-row">
+          <div class="rank-pos">#${idx + 1}</div>
+          <div class="rank-info">
+            <strong>🏢 ${item.sede}</strong>
+            <span class="rank-sede">Puntaje acumulado del equipo</span>
+          </div>
+          <div class="rank-score">${item.score.toLocaleString()} pts</div>
+        </div>
+      `).join('');
+
+      document.getElementById('ranking-list-start').innerHTML =
+        currentTab === 'asesores' ? asesoresHtml : sedesHtml;
+      document.getElementById('ranking-list-end').innerHTML = asesoresHtml;
+    }
+
+    loadRankings();
+  </script>
+</body>
+</html>
